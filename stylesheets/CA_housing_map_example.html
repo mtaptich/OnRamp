@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body{
+	font-family: Futura, "Trebuchet MS", Arial, sans-serif;
+}
+
+.tooltip {
+  border: 1px solid #fff;
+    color: black;
+    background-color: #ffffff;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  -webkit-transition: all 0.218s;
+  -moz-transition: all 0.218s;
+  -o-transition: all 0.218s;
+  transition: all 0.218s;
+  -moz-box-shadow: 1px 1px 2px #000;
+  -webkit-box-shadow: 1px 1px 2px #000;
+  box-shadow: 1px 1px 2px #000;
+  text-align: center;
+  font: 14px arial;
+  margin-top: 3px;
+}
+
+.county-border {
+  fill: none;
+  stroke: #eee;
+  stroke-opacity: .8;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="scripts/colorbrewer.js"></script>
+<script>
+//Initialize SVG height, width, and margin
+var width = 960,
+    height = 650,
+    margin = {top: 50, right: 50, bottom: 50, left: 50};
+
+//Projection: State Plane, see http://bl.ocks.org/mbostock/5126418
+var projection = d3.geo.transverseMercator()
+    .rotate([117 + 10 / 60, -38. - 16 / 60])
+    .scale(3500)
+
+var path = d3.geo.path()
+    .projection(projection);
+
+// I know the 10th, 25th, 50th, 75th, and 90th percentiles ahead of time.  I wish to show
+// the different census tracts bases on this delineation.
+percentiles = [0,.2,.4,.6,.8,1]
+
+// Colorbrewer
+var color = d3.scale.threshold()
+    .domain(percentiles)
+    .range(colorbrewer.Greens[7]); 
+
+// In the body of the HTML document, we will create a SVG tag.  We could direct
+// the location to an "id" or "class" by using d3.select("#idname") or d3.select(".classname"), too.
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+
+//On mouseover, the tooltip becomes visible.  Check out the CSS.  
+var tooltip = d3.select("body")
+  .append("div")
+  .attr("class","tooltip")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("visibility", "hidden"); // The CSS style "visibility" allows us to turn on and off the element
+
+var color_old // Make a global variable for color of highlighted census tract
+
+  //First load the outline of the counties...
+d3.json("data/ca_housing.json", function(error, ca) {
+  svg.append("g")
+      .attr("class", "tracts")
+    .selectAll("path")
+      .data(topojson.feature(ca, ca.objects.ca_tract).features)
+    .enter().append("path")
+      .attr("class", function(d) {
+      	var renters = (+d.properties.rent)/(+d.properties.rent + +d.properties.own+0.00001);
+      	if(renters>.5){
+      		return "Renters"
+      	}else{
+      		return "Owners"
+      	}  
+      })
+      .style("fill", function(d) { return d.properties.rent == undefined ? "#eee": color((+d.properties.rent)/(+d.properties.rent + +d.properties.own+0.00001));})
+      .on("mouseover", function(d){
+			var renters = (+d.properties.rent)/(+d.properties.rent + +d.properties.own+0.00001);
+			
+			//Turn the visibility of the tooltip on and display the percentage of renters
+			tooltip.style("visibility", "visible")
+				.style("background-color", "white")
+				.style("font-size", "14px")
+				.text(Math.round(renters*100)+"% renters");
+			
+			color_old = d3.select(this).style("fill");
+			d3.select(this).style("fill", "red")
+	  })
+	 .on("mousemove", function(){
+	 		//update tooltip based on mousemove
+	 		return tooltip.style("top", (event.pageY-50)+"px").style("left",(event.pageX+20)+"px");
+	  })
+	 .on("mouseout", function(d){
+	 		// Return back to initial state
+			tooltip.style("visibility", "hidden");
+			d3.select(this).style("fill", color_old)
+	  }) 
+      .attr("d", path)
+
+	svg.append("path")
+		  .datum(topojson.mesh(ca, ca.objects.counties, function(a, b) { return a !== b; }))
+		  .attr("class", "county-border")
+		  .attr("d", path);
+		  
+	makeLegend(700,50,"Renters or Owners");    
+});
+
+function makeLegend(chart_width, chart_height, Title){
+ //Create a background box to set in legend. Make it 80% opaque to be able to see through on zoom.
+ var box = svg.append("rect")
+ 			.attr("class", "backbox")
+ 			.attr("x", chart_width - 35*2)
+ 			.attr("y", 25)
+      		.attr("width", 160)
+     		.attr("height", 120)
+      		.style("fill", "#fff")
+      		.style("opacity", "0.5")
+
+// The lengend will be based on the percentile bins we designated. Using ".domain()", d3 will
+// return a list of thresholds used to set the domain of the bins.  
+ var legend = svg.selectAll(".legend")
+      .data(color.domain())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + (i * 15 + chart_height) + ")"; }) //"i" represents the element index.  We translate each box by 15 pixels times its index number. 
+
+  legend.append("rect")
+      .attr("x", chart_width - 33)
+      .attr("width", 15)
+      .attr("height", 15)
+      .style("fill", function(d,i) { return color(d); })
+    
+   legend.append("text")
+      .attr("x", chart_width - 39)
+      .attr("y", 10)
+      .attr("dy", ".15em")
+      .style("text-anchor", "end")
+      .style("font-size", 11)
+      .text(function(d,i) { return Math.round(d*100)+"%"}); // In javascript, you can concatenate numbers and strings using a plus sign. 
+    
+   var houses = svg.selectAll(".houses")
+      .data(["Renters", "Owners"])
+    .enter().append("g")
+      .attr("class", "houses")
+      .attr("transform", function(d,i) { return "translate("+(6*15)+"," + (i * 15+chart_height) + ")"; })
+      
+     houses.append("rect")
+      .attr("x", chart_width - 33)
+      .attr("width", 15)
+      .attr("height", 15)
+      .style("fill", function(d,i) { 
+      	if(d =="Renters"){
+      		return "#eee000"
+      	}else{
+      		return "orange"
+      	}
+      })
+      .on("mouseover", function(d){
+     	if(d=="Owners"){
+      		d3.selectAll(".Renters").style("visibility", "hidden") // Select all the tracts listed within the class "Renters" and we hide them 
+      		d3.selectAll(".county-border").style("stroke", "#000").style("opacity", 0.6) // Select the county borders and make the stand out more by changing the stroke color from grey to black and applying an opacity 
+      	}else{
+      		d3.selectAll(".Owners").style("visibility", "hidden")
+      		d3.selectAll(".county-border").style("stroke", "#000").style("opacity", 0.6)
+      	}
+      })
+      .on("mouseout", function(d){
+      	if(d=="Owners"){
+      		d3.selectAll(".Renters").style("visibility", "visible")
+      		d3.selectAll(".county-border").style("stroke", "#eee").style("opacity", 0.8)
+      	}else{
+      		d3.selectAll(".Owners").style("visibility", "visible")
+      		d3.selectAll(".county-border").style("stroke", "#eee").style("opacity", 0.8)
+      	}
+      })
+      
+    houses.append("text")
+      .attr("x", chart_width - 39)
+      .attr("y", 10)
+      .attr("dy", ".15em")
+      .style("text-anchor", "end")
+      .style("font-size", 11)
+      .text(function(d,i) { return d});
+    
+    svg.append("text")
+    	.attr("transform", function(d, i) { return "translate(0," + (i * 15 + chart_height) + ")"; })
+    	.attr("x", chart_width-65)
+      	.attr("y", -7)
+      	.style("font-size", 18)
+      	.text(Title)
+    	
+} 
+
+var zoom = d3.behavior.zoom()
+    .on("zoom",function() {
+    	// All elements in the SVG path will be scaled and translated based on the events scroll and mouse drag
+        d3.selectAll("path").attr("transform","translate("+ 
+            d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+        
+       // d3.event.scale is 1 by default.  Less than 1 signifies "zoom out", and greater than one "zoom in."  
+       scale_size = d3.event.scale;
+       
+       if(d3.event.scale != 1){
+       		// If "zoom in", we don't want the stroke of the borders to remain as large, otherwise they would cover some census tracts
+			d3.selectAll(".county-border").style("stroke-width", function(){return (1.5/d3.event.scale+.055)+"px";});
+      }
+  });
+  
+svg.call(zoom);	
+
+
+</script>
