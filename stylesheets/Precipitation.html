@@ -12,19 +12,13 @@ var width = 960,
 var projection = d3.geo.albers()
     .scale(1000);
 
-/*    
-var color = d3.scale.linear()
-    .domain([0, 1.6])
-    .range(["#4575b4", "#ffffbf", "#a50026"])
-    .interpolate(d3.interpolateHcl);
-*/
    
 percentiles = [0,.01,.05,.11,.19,0.36,2.58]
 
 // Colorbrewer
 var color = d3.scale.threshold()
     .domain(percentiles)
-    .range(colorbrewer.Blues[7]); 
+    .range(colorbrewer.Greens[7]); 
 
 var canvas = d3.select("body").append("canvas")
     .attr("width", width)
