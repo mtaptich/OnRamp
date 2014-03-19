@@ -1011,12 +1011,6 @@ d3.json("us.json", function(error, us) {
 			<aside>If you’re having installation problems, check that your <code>PATH</code> environment variable is set correctly by editing <code>/etc/paths</code>.</aside>
 			
 			<p>This should print <code>/usr/local/bin/ogr2ogr</code> and <code>/usr/local/bin/topojson</code>.
-			
-			<h4>Converting Data</h4>
-			
-			<p>Now equipped, we can merge the two shapefiles into a single TopoJSON file. We’ll first filter the shapefile so that it includes only the UK features we need. Then we’ll convert the shapefiles to intermediate <a href="http://geojson.org">GeoJSON</a> before finally generating TopoJSON.
-			
-			<p>Why two JSON formats? In truth, they’re siblings: <a href="https://github.com/mbostock/topojson">TopoJSON</a> is an extension of GeoJSON that encodes topology. Combined with fixed-precision encoding for coordinates, TopoJSON is usually much smaller than GeoJSON. Our map’s GeoJSON is 536KB, while the TopoJSON is only 80KB, a reduction of 85%. (This reduction holds even after gzip compression!) In addition, the topology information in TopoJSON enables automatic computation of boundary lines and other <a href="http://prag.ma/code/d3-cartogram/">interesting</a> <a href="http://bl.ocks.org/4180634">applications</a>, rather than requiring additional storage.
 		</div>
 		
 		<div class="col-sm-8 col-sm-offset-2" style="margin-top: 20px">
