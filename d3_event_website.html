@@ -1033,28 +1033,28 @@ d3.json("us.json", function(error, us) {
 		<div class="col-sm-8 col-sm-offset-2" style="margin-top: 20px">
 		<h4>Convert the shapfile (.shp) into a GeoJSON (.json) and then into a TopoJSON (.json).</h4>
 			<form style="margin-top:20px;"><textarea id="ogr2ogr" name="ogr2ogr">ogr2ogr \
-			  -f GeoJSON \
-			  -t_srs 'EPSG:4326' \
-			  bayarea.json \
-			  bayarea_general.shp
-			  
-			topojson \
-			  --id-property AREA_NAME \
-			  -o bayarea_topo.json  \
-			  bayarea.json
-			  
-			ogr2ogr \
-			  -f GeoJSON \
-			  -t_srs 'EPSG:4326' \
-			  -where "STREET IS NOT NULL" \
-			  SF_Streets.json \
-			  stclines_streets.shp
-				
-			topojson \
-			 --id-property ZIP_CODE \
-			 -p street=ST_TYPE \
-			  -o SF_Streets_topo.json  \
-			  SF_Streets.json</textarea></form>
+  -f GeoJSON \
+  -t_srs 'EPSG:4326' \
+  bayarea.json \
+  bayarea_general.shp
+  
+topojson \
+  --id-property AREA_NAME \
+  -o bayarea_topo.json  \
+  bayarea.json
+  
+ogr2ogr \
+  -f GeoJSON \
+  -t_srs 'EPSG:4326' \
+  -where "STREET IS NOT NULL" \
+  SF_Streets.json \
+  stclines_streets.shp
+	
+topojson \
+ --id-property ZIP_CODE \
+ -p street=ST_TYPE \
+  -o SF_Streets_topo.json  \
+  SF_Streets.json</textarea></form>
 						<script>
 					  var editor = CodeMirror.fromTextArea(document.getElementById("ogr2ogr"), {
 						mode: "scheme",
