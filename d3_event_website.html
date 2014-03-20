@@ -89,6 +89,10 @@
 
     <div class="divider"></div>
 
+    <ng-include src="'partials/graph.html'"></ng-include>
+
+    <div class="divider"></div>
+
     <ng-include src="'partials/maps.html'"></ng-include>
 
   </div>
@@ -103,6 +107,7 @@ setTimeout(function() {
   $('textarea').each(function() {
     $(this).contents().unwrap().wrap('<pre/>');
   })
+
 
 }, 1000)
 
