@@ -1,0 +1,964 @@
+  <section class="bg-2" id="section5">
+      <h2 style="padding: 20px; text-align: center; background-color:rgba(5,5,5,.8)">Application: Building Maps</h2>
+  </section>
+
+<!-- Begin Maps-->
+<div class="container">
+  <div class="col-sm-8 col-sm-offset-2">
+    <h2>Map making is easy and accessible with d3.js.</h2>
+    <p>With a little bit of practice, map making in d3.js can be as easy and intuitive as other GIS platforms. Maps serve many purposes in both research and outreach. They provide specific information about <a href="http://glimmer.rstudio.com/ramnathv/NYCBikeShare/" >
+      particular locations</a>, can be be used to showcase <a href="http://snf-datasci-2013.herokuapp.com/#observe-gather" target="_blank">
+      spatial patterns and relationships</a>, and give <a href="http://www.nytimes.com/interactive/2012/08/24/us/drought-crops.html?_r=0" target="_blank">
+      context to the data presented</a>. There are a <a href="http://bost.ocks.org/mike/map/" target="_blank">
+      few</a>  <a href="http://geoexamples.blogspot.com/2013/02/mapping-with-d3js-canvas-or-svg.html" target="_blank">
+      approaches</a> to generate <a href="http://bl.ocks.org/mbostock/4342045" target="_blank">
+      map</a>(<a href="http://bl.ocks.org/mbostock/4060606" target="_blank">s</a>) in d3.js, but we walk through some simple tips for beginners.</p>
+    <br>
+    <p>The three initial steps of map making are (i) choosing an appropriate projection for your data, (ii) processing you data into a form that is easy to manipulate, and (iii) scripting your code to allow for intuitive user actions.</p>
+    <hr>
+    <h2><a href="#example_mapcode1" name="example_mapcode1">#</a> Example Map Code.</h2>
+    <ul class="center-block">
+      <li>Create a folder on your desktop named "VUDmaps"</li>
+      <li>Open this TopoJSON <a href="http://bl.ocks.org/mbostock/raw/4090846/us.json" download>file</a> and save it as "us.json" within the VUDmaps folder.</li>
+      <li>In your text editor, copy the code below and save it as "index.html"</li>
+      <li>In your browser, now open the file by navigating through your local host. For me, it is on "http://localhost:8000/Desktop/VUDmaps"</li>
+    </ul>
+    <form style="margin-top:40px;">
+      <textarea id="code">
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+#states {
+  fill: #a9a9a9;
+}
+
+#state-borders {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var projection = d3.geo.albersUsa()
+    .scale(1070)
+    .translate([width / 2, height / 2]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var g = svg.append("g");
+
+d3.json("us.json", function(error, us) {
+  g.append("g")
+      .attr("id", "states")
+    .selectAll("path")
+      .data(topojson.feature(us, us.objects.states).features)
+    .enter().append("path")
+      .attr("d", path)
+
+  g.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("id", "state-borders")
+      .attr("d", path);
+});
+</script>
+</body>
+</html>
+      </textarea>
+    </form>
+
+
+    <h2><a href="#geo-projections" name="geoprojections">#</a>  <a href="https://github.com/mbostock/d3/wiki/Geo-Projections" target="_blank">Geo-Projections</a>.</h2>
+    <p>Each dataset will have a unique geospatial scope. Knowing which projection to use is the first step. Here is an excellent list of the different projections provided in a <a href="https://github.com/d3/d3-geo-projection/tree/d3298df7fa2713b19929502aea7cc24efdf23ece" target="_blank">plugin</a> provided by <a href="https://www.jasondavies.com/" target="_blank">Jason Davies</a>, but many more are available.</p>
+    <h4 style="margin-top: 45px">A list of projections offered in the
+      <em>d3-geo-projection</em>library.</h4>
+
+    <table class="highlight" style="background:#fffeff">
+      <tr height="150" valign="top">
+        <td>airy
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5620807" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5620807/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>aitoff
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3682698" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3682698/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">albers *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734308" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734308/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">albersUsa *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4090848" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4090848/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>armadillo
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4463127" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4463127/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>august
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3797581" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3797581/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">azimuthalEqualArea *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757101" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757101/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">azimuthalEquidistant *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757110" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757110/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>baker
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4476279" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4476279/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>berghaus
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4463049" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4463049/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>boggs
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4481220" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4481220/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>bonne
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734313" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734313/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>bromley
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4487695" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4487695/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>chamberlin
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5625053" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5625053/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>collignon
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734316" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734316/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">conicEqualArea *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734308" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734308/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td class="gi">conicConformal *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734321" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734321/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">conicEquidistant *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734317" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734317/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>craig
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4459466" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4459466/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>craster
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4465118" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4465118/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>cylindricalEqualArea
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3712408" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3712408/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>cylindricalStereographic
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5234763" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5234763/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>eckert1
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734322" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734322/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>eckert2
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734324" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734324/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>eckert3
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734325" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734325/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>eckert4
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734327" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734327/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>eckert5
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734328" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734328/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>eckert6
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734329" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734329/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>eisenlohr
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3797585" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3797585/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">equirectangular *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757119" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757119/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>fahey
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4731228" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4731228/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>gilbert
+          <br>
+          <a href="http://www.jasondavies.com/maps/gilbert/" target="_blank">
+            <img src="http://www.jasondavies.com/maps/gilbert/thumb.d3.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>ginzburg4
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5288565" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5288565/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>ginzburg5
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5288571" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5288571/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>ginzburg6
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5288577" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5288577/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>ginzburg8
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5288583" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5288583/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>ginzburg9
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5288590" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5288590/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">gnomonic *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757349" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757349/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>gringorten
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4362031" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4362031/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>guyou
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3763867" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3763867/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>hammer
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3712397" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3712397/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>hammerRetroazimuthal
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4459130" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4459130/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>healpix
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4463237" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4463237/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>hill
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4479513" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4479513/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>homolosine
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734330" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734330/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>kavrayskiy7
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3710082" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3710082/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>lagrange
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3797591" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3797591/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>larrivee
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3719042" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3719042/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>laskowski
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4489342" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4489342/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>littrow
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4459071" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4459071/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>loximuthal
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3867220" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3867220/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">mercator *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757132" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757132/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>miller
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734333" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734333/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>modifiedStereographic
+          <br>
+          <a href="http://www.jasondavies.com/maps/modified-stereographic/" target="_blank">
+            <img src="http://www.jasondavies.com/maps/modified-stereographic/gs50/thumb.d3.png" width="202">
+          </a>
+        </td>
+        <td>mollweide
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734336" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734336/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>mtFlatPolarParabolic
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4465130" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4465130/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>mtFlatPolarQuartic
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4465137" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4465137/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>mtFlatPolarSinusoidal
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4465140" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4465140/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>naturalEarth
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4479477" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4479477/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>nellHammer
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734342" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734342/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td class="gi">orthographic *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757125" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757125/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>peirceQuincuncial
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4310087" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4310087/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>polyconic
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3734343" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3734343/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>polyhedron.butterfly
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4458680" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4458680/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>polyhedron.waterman
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4458497" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4458497/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>rectangularPolyconic
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5230202" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5230202/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>robinson
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3710566" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3710566/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>satellite
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3790444" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3790444/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>sinuMollweide
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4319903" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4319903/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>sinusoidal
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3712399" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3712399/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td class="gi">stereographic *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3757137" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3757137/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>times
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5230564" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5230564/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>twoPointAzimuthal
+          <br>
+          <a href="http://www.jasondavies.com/maps/two-point-azimuthal/" target="_blank">
+            <img src="http://www.jasondavies.com/maps/two-point-azimuthal/thumb.d3.png" width="202">
+          </a>
+        </td>
+        <td>twoPointEquidistant
+          <br>
+          <a href="http://www.jasondavies.com/maps/two-point-equidistant/" target="_blank">
+            <img src="http://www.jasondavies.com/maps/two-point-equidistant/thumb.d3.png" width="202">
+          </a>
+        </td>
+        <td class="gi">transverseMercator *
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5126418" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5126418/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>vanDerGrinten
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3796831" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3796831/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>vanDerGrinten2
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5230571" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5230571/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>vanDerGrinten3
+          <br>
+          <a href="http://bl.ocks.org/mbostock/5230580" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/5230580/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>vanDerGrinten4
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4489365" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4489365/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>wagner4
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4487674" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4487674/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+      <tr height="150" valign="top">
+        <td>wagner6
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3710148" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3710148/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>wagner7
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4465109" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4465109/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>wiechel
+          <br>
+          <a href="http://bl.ocks.org/mbostock/4463155" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/4463155/thumbnail.png" width="202">
+          </a>
+        </td>
+        <td>winkel3
+          <br>
+          <a href="http://bl.ocks.org/mbostock/3682676" target="_blank">
+            <img src="http://bl.ocks.org/mbostock/raw/3682676/thumbnail.png" width="202">
+          </a>
+        </td>
+      </tr>
+    </table>
+    <h4>This basic template allows you to alter the map projection to your specific needs.</h4>
+    <p>Take, for instance, if we were concerned about issue arising within Alaska. We could simply find an example projection within the
+      <em>d3-geo-projection</em>library or other sources online. Then, swap out our projection variable from our old code with something new.</p>
+    <form style="margin-top:20px;">
+      <textarea id="projection">
+var projection = d3.geo.modifiedStereographic()
+    .coefficients("gs50")
+    .clipAngle(55)
+    .scale(1100)
+    .center([-2, 3])
+    .translate([width / 2, height / 2])
+    .rotate([156, -62.5])
+    .precision(.1);
+      </textarea>
+    </form>
+
+
+
+    <h2> <a href="#data-formats" name="data-formats">#</a>  <a href="https://github.com/mbostock/d3/wiki/Requests#convenience-methods" target="_blank">Data Formats</a>.</h2>
+    <h4>List of websites to get shapefiles useful for visualizing urban data:</h4>
+    <p>There are a large collection of geospatial files (e.g., shapefiles, kml, etc.) online. Here is a quick list of places I like to go for these files.</p>
+    <ul class="center-block">
+      <li><a href="http://www.naturalearthdata.com/downloads/" target="_black">Natural Earth</a>
+      </li>
+      <li><a href="http://www.nationalatlas.gov/maplayers.html" target="_black">US Atlas</a>
+      </li>
+      <li><a href="https://data.sfgov.org/" target="_black">SFgov.org</a>
+      </li>
+      <li><a href="http://www.gis.fhwa.dot.gov/gisData.asp" target="_black">Federal Highway Administration</a>
+      </li>
+      <li><a href="https://github.com/mbostock/us-atlas" target="_black">US Atlas in d3.js</a>
+      </li>
+      <li><a href="http://www.census.gov/geo/maps-data/" target="_black">Census Bureau</a>
+      </li>
+      <li><a href="http://www.nws.noaa.gov/gis/shapepage.htm" target="_black">National Oceanic and Atmospheric Administration (NOAA)</a>
+      </li>
+      <li><a href="https://www.sciencebase.gov/catalog/items?q=&filter0=browseCategory%3DData&facetTermLevelLimit=false" target="_black">ScienceBase Catalog</a>
+      </li>
+    </ul>
+
+    <p>Geographic data files, such as <a href="http://en.wikipedia.org/wiki/Shapefile" target="_blank">shapefiles</a>, are too large to display and manipulate in internet browsers. For this reason, a large portion of your time creating a map will be retrieving and processing data. The d3.js library supports
+      <a href="https://github.com/mbostock/d3/wiki/Requests#convenience-methods" target="_blank">multiple data formats</a>, but the two most common used in examples you will find online are CSV and JSON.</p>
+    <ul class="center-block">
+      <li><a href="https://github.com/mbostock/d3/wiki/CSV" target="_black">CSV</a>
+      </li>
+      <li><a href="https://www.dashingd3js.com/d3-examples/1-d3-and-javascript-working-with-json" target="_black">JSON</a>
+      </li>
+    </ul>
+    <p>The goal is then to manage and process your geographic data into these useful filetypes. Luckily, there are many helpful data processing tools available on the web.
+      <a href="http://bost.ocks.org/mike/" target="_blank">Mike Bostock</a> presents a great introduction to <a href="http://en.wikipedia.org/wiki/Shapefile" target="_blank">creating maps</a> using the <a href="http://www.gdal.org/" target="_blank">Geospatial Data Abstraction Library</a> (which includes <a href="http://www.gdal.org/ogr/" target="_blank">OGR Simple Features Library</a> and
+      <code><a href="http://www.gdal.org/ogr2ogr.html" target="_blank">ogr2ogr</a>
+      </code>). I highly encourage you to read more about <a href="http://geojson.org" target="_blank">GeoJSON</a> and Mike's <a href="https://github.com/mbostock/topojson" target="_blank">TopoJSON</a> data formats. For now, just know that these are the two measures needed to convert shapefiles into smaller, more manageable filetypes.</p>
+    <h4 style="margin-top: 45px">Below is an excerpt from Mike Bostock's "Let's make a map" demo:</h4>
+    <p>Use this demo to download ogr2ogr and topojson.
+
+      <h4>Installing Tools</h4>
+
+      <p>Geographic data files are almost always too large for manual cleanup or conversion. Fortunately, there’s a vibrant <a href="http://www.osgeo.org/">geo open-source community</a>, and many excellent free tools to manipulate and convert between standard formats.
+
+        <aside>Don’t ask <a href="http://trac.osgeo.org/gdal/wiki/FAQGeneral#WhatdoesOGRstandfor">what OGR stands for</a>, or <a href="https://twitter.com/HULKGEO/status/25680040871">how to pronounce GDAL</a>, because it’s a long story…</aside>
+
+        <p>The big multitool to know is the <a href="http://www.gdal.org/">Geospatial Data Abstraction Library</a>. Commonly referred to as GDAL, it includes the <a href="http://www.gdal.org/ogr/">OGR Simple Features Library</a> and the
+          <code><a href="http://www.gdal.org/ogr2ogr.html">ogr2ogr</a>
+          </code>binary we’ll use to manipulate the Natural Earth shapefiles. There are <a href="http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries">official GDAL binaries</a> for a variety of platforms, but if you’re on a Mac you should use <a href="http://mxcl.github.com/homebrew/">Homebrew</a>:
+
+          <textarea>
+brew install gdal
+          </textarea>
+
+          <p>Next you’ll need the reference implementation for <a href="https://github.com/mbostock/topojson">TopoJSON</a>, which requires Node.js. (You can install Node via Homebrew, but the <a href="http://nodejs.org/download/">official installers</a> work just as well.) After installing Node, run the following to install TopoJSON:
+
+            <textarea>
+npm install -g topojson
+            </textarea>
+
+            <p>And to verify the two installations, try:
+
+              <textarea>
+which ogr2ogr which topojson
+              </textarea>
+
+              <aside>If you’re having installation problems, check that your
+                <code>PATH</code>environment variable is set correctly by editing
+                <code>/etc/paths</code>.</aside>
+
+              <p>This should print
+                <code>/usr/local/bin/ogr2ogr</code>and
+                <code>/usr/local/bin/topojson</code>.
+
+                <h4>Let's walk through an example on how to use
+                  <code><a href="http://www.gdal.org/ogr2ogr.html">ogr2ogr</a>
+                  </code>.</h4>
+                <p>For our example, let us map out the streets of San Francisco from the SFgov.org website.</p>
+                <ul class="center-block">
+                  <li>Create a folder on your desktop named "SF_streets"</li>
+                  <li>Download this zip <a href="https://data.sfgov.org/download/ye46-7n65/ZIP" download>file</a> of the city's border from <a href="https://data.sfgov.org/Geography/Bay-Area-General-Zipped-Shapefile-Format-/ye46-7n65" target="_black">SFgov.org</a>, unzip the file, and move the folder to your desktop. Make sure to keep the folder label "bayarea_general".</li>
+                  <li>Download this zip <a href="https://data.sfgov.org/download/wbm8-ratb/ZIP" download>file</a> of the city's streets from <a href="https://data.sfgov.org/Geography/Streets-of-San-Francisco-Zipped-Shapefile-Format-/wbm8-ratb" target="_black">SFgov.org</a>, unzip the file, and
+                    <em>add</em>all the files into the "bayarea_general" folder that you just created on your desktop.</li>
+                  <li>In your terminal, entering into the folder on your desktop named "bayarea_general". To move between folders, use the "cd" command in the command line.</li>
+                  <li>Copy the code below and paste it into the terminal.</li>
+                </ul>
+                <h4>Convert the shapfile (.shp) into a GeoJSON (.json) and then into a TopoJSON (.json).</h4>
+                <form style="margin-top:20px;">
+                  <textarea id="ogr2ogr">
+ogr2ogr \
+  -f GeoJSON \
+  -t_srs 'EPSG:4326' \
+  bayarea.json \
+  bayarea_general.shp
+  
+topojson \
+  --id-property AREA_NAME \
+  -o bayarea_topo.json  \
+  bayarea.json
+  
+ogr2ogr \
+  -f GeoJSON \
+  -t_srs 'EPSG:4326' \
+  -where "STREET IS NOT NULL" \
+  SF_Streets.json \
+  stclines_streets.shp
+  
+topojson \
+ --id-property ZIP_CODE \
+ -p street=ST_TYPE \
+  -o SF_Streets_topo.json  \
+  SF_Streets.json
+                  </textarea>
+                </form>
+
+                <p>*Note: The
+                  <code>"-where "STREET IS NOT NULL" \</code>portion is an SQL command that skips any object in the shapefile with a "null" value. This would not be needed for most applications.</p>
+                <h4>Let's now plot our TopoJSON files in d3.js.</h4>
+                <p>Utilizing the geospatial data we just processed, we can now make a map.</p>
+                <ul class="center-block">
+                  <li>If you were not able to generate the files in ogr2org, you can just download the <a href="stylesheets/data/bayarea_topo.json" download>"bayarea_topo.json"</a> and <a href="stylesheets/data/SF_Streets_topo.json" download>"SF_Streets_topo.json"</a> files.</li>
+                  <li>Create a file in your text editor and save it as "index.html" in the "bayarea_general" folder on your desktop.</li>
+                  <li>Copy the code below into "index.html"</li>
+                  <li>Open this file in your browser using you localhost.</li>
+                </ul>
+                <form style="margin-top:20px;">
+                  <textarea id="SF">
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.SF {
+  fill: none;
+  fill-opacity: .99;
+  stroke: #a9a9a9;
+  stroke-width: 1px;
+}
+
+.Bay_and_Ocean{
+ fill: #b1dfda;
+}
+
+.SF_Streets{
+ fill: none;
+  fill-opacity: 1;
+  stroke: white;
+  stroke-width: 0.1px;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var margin = {top: 50, right: 30, bottom: 30, left: 40},
+  height = 600 - margin.top -  margin.bottom,
+    width = 900- margin.right - margin.left;
+
+var projection = d3.geo.mercator()
+    .center([-122.4, 37.775])
+    .scale(237000)
+    .rotate([0,0]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height+margin.bottom + margin.top);
+
+var path = d3.geo.path()
+    .projection(projection)
+    .pointRadius(1.5);
+
+var g = svg.append("g")
+  
+var color = d3.scale.category20b();
+
+// Load and display SF
+d3.json("bayarea_topo.json", function(error, data) {     
+svg.append("g")
+      .attr("class", "SF")
+    .selectAll("path")
+      .data(topojson.feature(data, data.objects.bayarea).features)
+    .enter().append("path")
+      .attr("class", function(d){ return d.id.replace(/ /g, "_")})
+      .attr("d", path)
+});
+
+// Load and display streets
+d3.json("SF_Streets_topo.json", function(error, Streets) {
+  svg.append("g")
+      .attr("class", "SF_Streets")
+    .selectAll("path")
+      .data(topojson.feature(Streets, Streets.objects.SF_Streets).features)
+    .enter().append("path")
+      .style("stroke", function(d){ return color(d.properties.street)})
+      .style("stroke-width", "0.3")
+      .attr("d", path)
+}); 
+
+</script>
+</body>
+</html>
+                  </textarea>
+                </form>
+
+  </div>
+  <div class="col-sm-8 col-sm-offset-2" style="margin-top: 20px">
+    <h4>Let's add a few actions that will be performed on certain <a href="https://github.com/mbostock/d3/wiki/Selections#on" target="_blank">mouse events</a>.</h2>
+      <p>In our last example, we plotted out a map of the streets of San Francisco based on their street names. The map, as it stands, is static. Let's introduce two simple techniques to make this map more interactive.
+        <p>
+          <p>First, add a zooming function that will translate the SVG image on a mouse scrolling event. To do so, add this batch of code to the end of the "script" section of the html file. What it does is select all the objects in the "g" element of the SVG and scales and translates the image proportionally to the scrolling and dragging mouse event.</p>
+  </div>
+
+  <div class="col-sm-8 col-sm-offset-2">
+    <form style="margin-top:20px;">
+      <textarea id="zooming">
+// zoom and pan
+var zoom = d3.behavior.zoom()
+    .on("zoom",function() {
+        svg.selectAll("g").attr("transform","translate("+ 
+            d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+  });
+  
+svg.call(zoom);
+      </textarea>
+    </form>
+
+
+  </div>
+  <div class="col-sm-8 col-sm-offset-2" style="margin-top: 20px">
+    <p>Now, lets change the color of a street as we mouseover each line segment. To do so, we want to give each line segment a cue to perform an activity on the mouseover (and mouseout) event. Replace the sections of code corresponding to the "SF_Streets_topo.json" file and add in this the example code below. You will now be able to highlight over a road with your mouse cursor and have the line segment change colors to indicate the selection.</p>
+  </div>
+  <div class="col-sm-8 col-sm-offset-2">
+    <form style="margin-top:20px;">
+      <textarea id="mouseover">
+
+// Load and display streets
+var streetcolor;
+d3.json("SF_Streets_topo.json", function(error, Streets) {
+  svg.append("g")
+      .attr("class", "SF_Streets")
+    .selectAll("path")
+      .data(topojson.feature(Streets, Streets.objects.SF_Streets).features)
+    .enter().append("path")
+      .style("stroke", function(d){ return color(d.properties.street)})
+      .style("stroke-width", "0.3")
+      .on("mouseover", function(d){
+          streetcolor = d3.select(this).style("stroke");
+          d3.select(this).style("stroke","red")
+      })
+      .on("mouseout", function(d){
+          d3.select(this).style("stroke",streetcolor)
+      })
+      .attr("d", path)
+});
+
+      </textarea>
+    </form>
+
+    <h2 style="margin-bottom: 20px">Here are three example maps of varying degrees of difficulty that you can try out on your own!</h2>
+    <div class="col-sm-4 col-xs-6">
+
+      <div class="panel panel-default">
+        <div>
+          <img src="stylesheets/img/california_renters.png" class="img-responsive">
+        </div>
+        <div class="panel-body">
+          <p class="lead">Future Example 1</p>
+          <p><a href="http://mtaptich.github.io/California-Renters/" target="_blank">California Renters</a>
+          </p>
+
+        </div>
+      </div>
+      <!--/panel-->
+    </div>
+    <!--/col-->
+
+    <div class="col-sm-4 col-xs-6">
+
+      <div class="panel panel-default">
+        <div class="panel-thumbnail">
+          <img src="stylesheets/img/scraping.png" class="img-responsive" style=" border: 1px solid #eee;">
+        </div>
+        <div class="panel-body">
+          <p class="lead">Future Example 2</p>
+          <p><a href="http://cleanshipping.appspot.com/scrape_coal_data" target="_blank">Scraping Data from Websites</a>
+          </p>
+        </div>
+      </div>
+      <!--/panel-->
+    </div>
+    <!--/col-->
+
+    <div class="col-sm-4 col-xs-6">
+      <div class="panel panel-default">
+        <div class="panel-thumbnail">
+          <img src="stylesheets/img/precipitation.png" class="img-responsive" style=" border: 1px solid #eee;">
+        </div>
+        <div class="panel-body">
+          <p class="lead">Future Example 3</p>
+          <p><a href="http://cleanshipping.appspot.com/Precipitation" traget="_blank">Maps Using Canvas</a>
+          </p>
+        </div>
+      </div>
+      <!--/panel-->
+
+    </div>
+    <!--/col-->
+  </div>
+  <!--/container-->
+</div>

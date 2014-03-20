@@ -1,0 +1,118 @@
+<section class="bg-2" id="section2">
+  <h2 style="padding: 20px; text-align: center; background-color:rgba(5,5,5,.8)">Getting Started</h2>
+</section>
+<div class="container">
+  <div class="col-sm-8 col-sm-offset-2">
+    <p>We need to do five boring things to get started:</p>
+    <ol>
+      <li>Install a Text editor (Sublime Text).</li>
+      <li>Save a basic HTML page.</li>
+      <li>Install a computer language called NodeJS.</li>
+      <li>Learn to navigate around with Terminal/Command Prompt.</li>
+      <li>Run a server/localhost.</li>
+    </ol>
+
+    <!-- INSTALL SUBLIME -->
+    <h3>#1 Install Sublime Text 3</h3>
+    <p><b>Sublime Text</b> is a beautiful text editor. Download it below. Pay if you feel generous.</p>
+    <iframe src="http://www.sublimetext.com/3" height="400px" width="100%"></iframe>
+
+    <hr>
+
+    <h3>#2 Save a Basic HTML page</h3>
+    <p>Open Sublime Text.</p>
+    <p>Copy and Paste the code below into a Sublime Text window.</p>
+
+<textarea>
+<!-- always save this file as "index.html" -->
+<!DOCTYPE html>
+<html>
+<style>
+<!-- CSS goes here -->
+
+  body{
+    font-size: 15px;
+  }
+
+</style>
+<!-- load libraries here -->
+<script src="http://d3js.org/d3.v3.js"></script>
+
+<body>
+  <h3>Berkeley BART</h3>
+  <p>sells coffee</p>
+  <div id="main"></div>
+
+</body>
+
+<script type="text/javascript">  // write your d3.js code here
+  var svg = d3.select("#main").append("svg")
+      .attr("width", 200)
+      .attr("height", 150)
+
+  svg.append("circle")
+    .attr({
+      cx: 100,
+      cy: 50,
+      r: 50,
+      fill: "crimson",
+      opacity: 0.5
+    });
+</script>
+</html>
+</textarea>
+
+    <p>Save this code as "index.html" in a special folder you create on your computer.</p>
+
+    <h3>#3 Install NodeJS</h3>
+
+    <p>We need to use Node or Python to run a local server, so we can see our web pages.</p>
+    <p>It's like making a little Internet on your computer.</p>
+    <p>Node is easiest for Windows users, so we're going to use that one.</p>
+
+    <iframe src="http://nodejs.org/download/" height="300px" width="100%"></iframe>
+
+    <h3>#4 Navigate to a folder in the Terminal/Command Prompt</h3>
+
+    <p>Make a folder somewhere on your computer to store your web page and data files in. Now, we need to navigate to your folder in a command line interface. </p>
+    <p>OSX/Linux users, open a Terminal window. Windows users, open Command Prompt.</p>
+    <div class="row">
+      <div class="col-md-6">
+        <b>Windows Command Prompt</b>
+        <img src="stuff/img/Command_Prompt.png" alt="" width="100%">
+      </div>
+      <div class="col-md-6">
+        <b>OSX/Linux Terminal</b>
+        <img src="stuff/img/terminal.jpg" alt="" width="100%">
+      </div>
+    </div>
+    <hr>
+
+    <h4>basic shell commands</h4>
+
+    <ul>
+      <li>Type <code>ls</code> (Windows users type <code>Dir</code>) to see a list of folders and files in the folder where you are. </li>
+      <li>Type <code>cd [THE FOLDER NAME HERE]</code> to go 'down' into some folder.</li>
+      <li>Type <code>cd ..</code> to go back 'up' a level. Like if you were in Documents, typing <code>cd ..</code> will take you up into your home folder.</li>
+    </ul>
+
+    <h3>#5 Make a Little Internet w/ a local server</h3>
+ 
+    <p>We're going to install a package for Node called http-server. Type:</p>
+
+    <textarea >npm install http-server -g</textarea>
+
+    <h4>Once it's installed, to make the little Internet, type:</h4>
+    <textarea>http-server</textarea>
+    <p>Now go to your browser and type in: <code>localhost:8080</code></p>
+    <img src="stuff/img/localhost.png" alt="">
+    <p>Click through to the folder where you made your website, and you should see the website.</p>
+    <iframe src="partials/example.html" frameborder="0" width="100%" height="250px"></iframe>
+    <!--/col-->
+
+  <h1 style="text-align: center;">BAM! YOU'RE CODING.</h1>
+
+  </div>
+
+  <!--/container-->
+</div>

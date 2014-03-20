@@ -1,0 +1,36 @@
+<!-- always save this file as "index.html" -->
+<!DOCTYPE html>
+<html>
+<style>
+<!-- CSS goes here -->
+
+  body{
+    font-size: 15px;
+  }
+
+</style>
+<!-- load libraries here -->
+<script src="http://d3js.org/d3.v3.js"></script>
+
+<body>
+  <h3>Berkeley BART</h3>
+  <p>sells coffee</p>
+  <div id="main"></div>
+
+</body>
+
+<script type="text/javascript">  // write your d3.js code here
+  var svg = d3.select("#main").append("svg")
+      .attr("width", 200)
+      .attr("height", 150)
+
+  svg.append("circle")
+    .attr({
+      cx: 100,
+      cy: 50,
+      r: 50,
+      fill: "crimson",
+      opacity: 0.5
+    });
+</script>
+</html>
