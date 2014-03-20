@@ -1,5 +1,4 @@
-OnRamp
-======
+
 
 <div style="margin:0 auto">
       <h1>Visualizing Urban Data IdeaLab</h1>
